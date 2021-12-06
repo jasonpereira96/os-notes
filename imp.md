@@ -1,23 +1,25 @@
 ## boot
-boot - how does it work?
-what is a bootloader and its relationship to BIOS
-how do we start running?
-What is happening in the execution from the entry point in the kernel all the way until you start running the first user program init
-configure the hardware in various ways, in particlar the interrupt tables
-initial page table
-once we've started running init -  we have another page table
-the free list of free pages
+- boot - how does it work?
+- what is a bootloader and its relationship to BIOS
+- how do we start running?
+- What is happening in the execution from the entry point in the kernel all the way until you start running the first - user program init- 
+- configure the har- dware in various ways, in particlar the interrupt tables- 
+- initial page table- 
+- once we've started running init -  we have another page table
+- the free list of free pages
 
 ## Memory mamagesment
-Structure and function of page tables
-The fact that we have one for every process
-mmap homework
-sbrk
-malloc is in userspace
+- Structure and function of page tables
+- The fact that we have one for every process
+- mmap homework
+- `sbrk()`
+- malloc is in userspace
 
 ## page faults and how they are handled
 lazy allocation in mmap
+
 we get to see the address that the page fault occured at in cr2
+
 kalloc() / kfree() and how it works
 
 ## kernel page table and process page table
@@ -29,7 +31,9 @@ When do we swtich page tables? What does it mean to swtich page tables?
 
 ## Process 
 we have our own unique virtual memory address space
+
 unique set of regs
+
 how do we backup the regs during a context swtich
 
 user vs kernel reg contents 
