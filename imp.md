@@ -106,6 +106,67 @@ Read `read()`
 - delivery of signals
 
 
+## Log 
+begin_op();
+log_write() is a proxy for bwrite()
 
+in log_write()
+log.lh.block[i] = b->blockno; // add the modified buffer to the in memory log
+// this happens several times
+
+end_op(); // calls commit()
+
+
+commit();
+```c
+void commit
+{
+  if (log.lh.n > 0) {
+    write_log();     // Write modified blocks from cache to log
+    write_head();    // Write header to disk -- the real commit
+    install_trans(); // Now install writes to home locations
+    log.lh.n = 0;
+    write_head();    // Erase the transaction from the log
+  }
+}
+```
+
+There are 2 file tables
+The global file table ftable which has all the files and
+The proc->ofile which has a list of the processes open files
+The syscall open() populates the global one first and then the per process one
+
+
+inode  numbers  only  have  a  unique  meaning  on  a  single  disk
+
+
+`link()` creates a directory entry
+`unlink()` removes a directory entry
+
+## questions
+- `iderw()` working ???? 
+- multi cpu spin locks
+
+# Notes
+
+For XCHG
+https://pdos.csail.mit.edu/6.828/2005/readings/i386/LOCK.htm
+The LOCK prefix causes the LOCK# signal of the 80386 to be asserted during execution of the instruction that follows it. In a multiprocessor environment, this signal can be used to ensure that the 80386 has exclusive use of any shared memory while LOCK# is asserted.
+
+You can never switch to another process directly
+You have to switch to the scheduler first and then the scheduler will switch to another process
+The xv6 scheduler has its own thread (saved registers and stack) (one per CPU) because it is sometimes not
+safe for it execute on any process’s kernel stack
+
+
+In  our  example, sched called swtch to  switch  to cpu->scheduler,  the  per-CPU
+scheduler  context. That  context  had  been  saved  by scheduler’s  call  to swtch (2781).
+When  the swtch we  have  been  tracing  returns,  it  returns  not  to sched but  to sched-
+uler,  and  its  stack  pointer  points  at  the  current  CPU’s  scheduler  stack
+
+### sleep() and wakeup()
+- sleep goes to sleep by setting proc->state to SLEEPING and calling `sched()`. This calls the schduler and makes it switch to something else.
+
+- wakeup(chan) blows through the table and looks for any process which slept on channel chan. It then sets its state to RUNNABLE so that it can eventually be scheduled by the scheduler.
 
 
