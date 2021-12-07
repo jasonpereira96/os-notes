@@ -2,8 +2,8 @@
 - boot - how does it work?
 - what is a bootloader and its relationship to BIOS
 - how do we start running?
-- What is happening in the execution from the entry point in the kernel all the way until you start running the first - user program init- 
-- configure the har- dware in various ways, in particlar the interrupt tables- 
+- What is happening in the execution from the entry point in the kernel all the way until you start running the first user program init 
+- configure the har- dware in various ways, in particlar the interrupt tables 
 - initial page table- 
 - once we've started running init -  we have another page table
 - the free list of free pages
@@ -173,4 +173,37 @@ uler,  and  its  stack  pointer  points  at  the  current  CPU’s  scheduler  s
 
 - wakeup(chan) blows through the table and looks for any process which slept on channel chan. It then sets its state to RUNNABLE so that it can eventually be scheduled by the scheduler.
 
+## Pipe()
+`pipe()` uses 
 
+## Boot
+The  BIOS  loads  the  boot  sector  at  memory address 0x7c00 and  then  jumps  (sets  the  processor’s %ip)  to  that  address.
+
+## `entry.S`
+- Here entry sets up 2 page tables
+- Initially, the kernel is running at low physical addresses.
+- We need to map it to high virtual addresses
+
+### Steps
+- Map 0:x400000 to 0:x400000
+- Map KERNBASE:KERNBASE + x400000 to 0:x400000
+- do some other stuff
+- Enable Paging
+- JMP to `main()` (Since paging is enabled and page tables are set up, virtual addresses work and the kernel doesn't crash)
+
+Each  process  has  two  stacks:  a  user
+stack  and  a  kernel  stack  (p->kstack).  When  the  process  is  executing  user  instructions,
+only  its  user  stack  is  in  use, and  its  kernel  stack  is  empty. When  the  process  enters  the
+kernel  (for  a  system  call  or  interrupt),  the  kernel  code  executes  on  the  process’s  kernel
+stack;  while  a  process  is  in  the  kernel,  its  user  stack  still  contains  saved  data,  but  isn’t
+actively  used. A  process’s  thread  alternates  between  actively  using  its  user  stack  and  its
+kernel  stack.  The  kernel  stack  is  separate  (and  protected  from  user  code)  so  that  the
+kernel  can  execute  even  if  a  process  has  wrecked  its  user  stack.
+
+### Note:
+Changing  page  tables while  executing  in  the  kernel  works  because setupkvm causes  all  processes’ page  tables
+to  have  identical  mappings  for  kernel  code  and  data. **This is why we add all kernel mappings to all the user processes page tables, so that the kernel doesn't crash when we switch page tables in kernel code. Fuck!**
+
+**This is how the kernel stack is automatically used when executing interrpt handlers**
+
+`switchuvm()` also  sets  up  a  task state  segment SEG_TSS that  instructs  the  hardware  to  execute  system  calls  and  interrupts on the process’s kernel stack.
