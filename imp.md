@@ -207,3 +207,16 @@ to  have  identical  mappings  for  kernel  code  and  data. **This is why we ad
 **This is how the kernel stack is automatically used when executing interrpt handlers**
 
 `switchuvm()` also  sets  up  a  task state  segment SEG_TSS that  instructs  the  hardware  to  execute  system  calls  and  interrupts on the process’s kernel stack.
+
+
+### Calls trace
+- running process 1
+- trap() (interrupt handler was just called)
+- yield()
+- sched()
+- switch() to scheduler
+- returns in scheduler()
+- switch() to another process's kernel thread
+- returns in yield() 
+- falls through to trap()
+- resumes running user code (process 2)
