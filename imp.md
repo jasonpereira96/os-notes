@@ -107,7 +107,9 @@ Read `read()`
 - sleep locks
 
 ## Signals
-- delivery of signals
+### Delivery of signals
+- error case - if during the handling of a syscall, an interrupt happens, then we have to unwind the stack of the syscall and return an error
+- we need to wake up a process if it is sleeping, since we need to deliver the signal immeidiately
 
 
 ## Log 
@@ -220,3 +222,8 @@ to  have  identical  mappings  for  kernel  code  and  data. **This is why we ad
 - returns in yield() 
 - falls through to trap()
 - resumes running user code (process 2)
+
+### TSS
+We set this to the top of the stack of the kstack, so that when a syscall/ interrpt happens, the CPU automatically starts using the kstack
+The three privilege-level stack pairs (SS0:ESP0, SS1:ESP1, SS2:ESP2);
+Read during an inter-level CALL or INT to establish a new stack.
